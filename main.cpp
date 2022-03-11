@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string.h>
+#include <stdlib.h>
+#include <time.h>
+#include "ai.cpp"
 
 using namespace std;
 
@@ -11,7 +14,7 @@ char table[5][5] = {
     {' ', '|', ' ', '|', ' '},
 };
 
-bool gIsEnded;
+bool gIsEnded, gActiveAI;
 
 void PrintTable()
 {
@@ -41,7 +44,8 @@ int *CheckPlay(int play, int *results)
         {
             fila = 2;
             index = play - 3;
-        } else if (play >= 6 && play <= 8) 
+        } 
+        else if (play >= 6 && play <= 8) 
         {
             fila = 4;
             index = play - 6;
@@ -149,6 +153,12 @@ int main(int argc, char const *argv[])
 
     gIsEnded = false;
 
+    int opt;
+    cout << "Selecciona con 1 y 2:\n1) Jugar contra persona.\n2) Jugar contra la PC.\n";
+    cin >> opt;
+
+    gActiveAI = opt == 2;
+
     while (!gIsEnded)
     {
         PrintTable();
@@ -174,11 +184,19 @@ int main(int argc, char const *argv[])
             index = 4;
         }
 
-        if (table[fila][index] == ' ') 
+        if (table[fila][index] == ' ')
         {
             table[fila][index] = playerOne ? 'X' : 'O';
-            playerOne = !playerOne;
-        } 
+            if (!gActiveAI)
+            {
+                //table[fila][index] = playerOne ? 'X' : 'O';
+                playerOne = !playerOne;
+            }
+            else
+            {
+                PlayAI(table, 0);
+            }
+        }
         else 
         {
             cout << "Espacio ocupado\n";
@@ -188,8 +206,16 @@ int main(int argc, char const *argv[])
         if (winner != 0) 
         {
             PrintTable();
-            cout << "Jugador " << winner << " gano!\n";
-            gIsEnded = true;
+            if (gActiveAI)
+            {
+                cout << (winner == 1 ? "Ganaste!\n" : "La PC te ha ganado :(\n");
+            }
+            else
+            {
+                cout << "Jugador " << winner << " gano!\n";
+            }
+            RestartGame();
+            //gIsEnded = true;
         }
 
         if (!AvalibleGame()) 
